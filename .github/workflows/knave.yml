@@ -1,0 +1,24 @@
+# `knave upgrade` rewrites this file. Put the project's own steps in another workflow.
+name: Knave
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-knave
+      - name: Check the layout
+        run: knave fmt --check
+      - name: Lint
+        run: knave lint
+      - name: Build
+        run: knave build
+      - name: Test
+        run: knave test

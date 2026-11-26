@@ -1,0 +1,5 @@
+(export greeting)
+
+(defn greeting () "hello")
+
+(defn main () (println (greeting)))
