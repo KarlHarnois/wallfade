@@ -2,5 +2,7 @@
   :knave "0.22.0"
   (libraries
     (ledelint :git "https://github.com/KarlHarnois/ledelint"
-              :rev "19bfd0d1d8f73dd728dc15bbe29921402c20f455"))
+              :rev "19bfd0d1d8f73dd728dc15bbe29921402c20f455")
+    (knave-commandant :git "https://github.com/KarlHarnois/knave-commandant"
+                      :rev "d850f54fa7e2876c7923b766843899ecff0f0ff9"))
   (lints (needless-type deny)))
