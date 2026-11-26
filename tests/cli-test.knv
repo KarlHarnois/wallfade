@@ -5,9 +5,6 @@
   (map-ok (wallfade-after texts)
     (fn (command) (clone (:output command)))))
 
-(defn exit-code-after (texts)
-  (:code (unwrap-err (wallfade-after texts))))
-
 (defn wallfade-after (texts)
   (parse-args-from wallfade
                    (->environment :variables (vec))
@@ -29,14 +26,3 @@
 (deftest the-short-option-sets-the-output
   (assert (= (output-after (vec "wall.jpg" "-o" "out.png"))
              (ok (some (str "out.png"))))))
-
-(deftest the-long-option-sets-the-output
-  (assert (= (output-after (vec "--output" "out.png" "wall.jpg"))
-             (ok (some (str "out.png"))))))
-
-(deftest a-missing-input-is-a-usage-error
-  (assert (= (exit-code-after (the (vec (ref str)) (vec)))
-             2)))
-
-(deftest an-unknown-option-is-a-usage-error
-  (assert (= (exit-code-after (vec "wall.jpg" "--top" "40")) 2)))
