@@ -1,5 +1,5 @@
-(export greeting)
+(use knave-commandant parse-args)
+(use cli matches->wallfade wallfade-spec)
 
-(defn greeting () "hello")
-
-(defn main () (println (greeting)))
+(defn main ()
+  (prn (parse-args wallfade)))

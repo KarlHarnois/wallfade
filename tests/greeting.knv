@@ -1,4 +1,0 @@
-(use main greeting)
-
-(deftest greeting-says-hello
-  (assert (= (greeting) "hello")))

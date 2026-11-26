@@ -1,0 +1,11 @@
+(use knave-commandant defcommand)
+
+(export matches->wallfade wallfade wallfade-spec)
+
+(defcommand wallfade "Fades the top and bottom edges of a wallpaper toward black."
+  :version "0.1.0"
+  (input string :about "The wallpaper to fade")
+  (:output string
+           :short o
+           :value-name path
+           :about "Where to write the faded wallpaper"))
