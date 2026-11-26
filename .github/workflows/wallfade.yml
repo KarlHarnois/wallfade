@@ -1,0 +1,17 @@
+name: Wallfade
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-knave
+      - name: Check the newspaper order
+        run: knave task ledelint
