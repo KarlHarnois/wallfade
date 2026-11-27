@@ -1,28 +1,30 @@
 (use knave-commandant ->environment parse-args-from)
 (use cli matches->wallfade wallfade-spec)
 
-(defn output-after (texts)
-  (map-ok (wallfade-after texts)
-    (fn (command) (clone (:output command)))))
+(defn output (texts)
+  (-> texts wallfade-cli
+      (map-ok (fn (cmd) (clone (:output cmd))))))
 
-(defn wallfade-after (texts)
-  (parse-args-from wallfade
-                   (->environment :variables (vec))
-                   (words texts)))
+(defn input (texts)
+  (-> texts wallfade-cli
+      (map-ok (fn (cmd) (clone (:input cmd))))))
+
+(defn wallfade-cli (texts)
+  (parse-args-from wallfade (empty-env) (words texts)))
+
+(defn empty-env ()
+  (->environment :variables (vec)))
 
 (defn words (texts)
-  (collect (map (iter texts)
-             (fn (text) (str (deref text))))))
+  (-> texts (map str) collect))
 
 (deftest the-input-is-the-first-argument
-  (assert (= (map-ok (wallfade-after (vec "wall.jpg"))
-               (fn (command) (clone (:input command))))
+  (assert (= (input (vec "wall.jpg"))
              (ok (str "wall.jpg")))))
 
 (deftest the-output-is-absent-without-the-option
-  (assert (= (output-after (vec "wall.jpg"))
-             (ok none))))
+  (assert (= (output (vec "wall.jpg")) (ok none))))
 
 (deftest the-short-option-sets-the-output
-  (assert (= (output-after (vec "wall.jpg" "-o" "out.png"))
+  (assert (= (output (vec "wall.jpg" "-o" "out.png"))
              (ok (some (str "out.png"))))))
