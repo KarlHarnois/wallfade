@@ -2,8 +2,6 @@
         ->pixel-row edge-fade fade image-size percent
         pixel-row row-brightness)
 
-(def percent-of-whole 100.0)
-
 (def int->float
   (rust "{0} as f64" (fn (int) float)))
 
@@ -45,4 +43,4 @@
     (- 1.0 (/ distance-from-edge reach))))
 
 (defn fraction (percent)
-  (-> percent :value int->float (/ percent-of-whole)))
+  (-> percent :value int->float (/ 100.0)))
