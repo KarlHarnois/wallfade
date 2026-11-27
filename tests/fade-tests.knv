@@ -1,15 +1,29 @@
 (use fade ->edge-fade ->fade ->percent ->pixel-row
-          row-brightness)
+          faded-image row-brightness)
 
-(use images ->image-size)
+(use images ->image ->image-size bytes-per-pixel)
 
 (def tolerance 0.000001)
 
 (def eleven-row-image (->image-size :width 1 :height 11))
 
+(def gray-byte 200)
+
 (defn brightness (top bottom pixel-row)
   (row-brightness (->fade :top top :bottom bottom)
                   eleven-row-image pixel-row))
+
+(defn top-faded-image (width height)
+  (faded-image (->fade :top (edge 50 50) :bottom (edge 0 0))
+               (gray-image width height)))
+
+(defn gray-image (width height)
+  (let (byte-count (* width height bytes-per-pixel)
+        bytes (-> (range 0 byte-count)
+                  (map (fn (_) (the u8 gray-byte)))
+                  collect))
+    (->image :size (->image-size :width width :height height)
+             :bytes bytes)))
 
 (defn edge (darkening reach)
   (->edge-fade :darkening (->percent :value darkening)
@@ -47,3 +61,16 @@
                               (edge 0 0)
                               (->pixel-row :index 0))
                   1.0)))
+
+(deftest every-byte-of-the-top-row-is-darkened
+  (assert (= (-> (top-faded-image 2 11) :bytes copied (take 6) collect)
+             (vec 100 100 100 100 100 100))))
+
+(deftest a-row-past-the-reach-keeps-its-bytes
+  (let (last-row-start (* 10 bytes-per-pixel)
+        faded (top-faded-image 1 11))
+    (assert (= (-> faded :bytes (at last-row-start) deref) gray-byte))))
+
+(deftest fading-keeps-the-image-size
+  (assert (= (:size (top-faded-image 2 11))
+             (->image-size :width 2 :height 11))))

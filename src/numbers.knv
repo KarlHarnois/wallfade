@@ -1,7 +1,10 @@
-(export abs-difference int->float u8->int)
+(export abs-difference float->u8 int->float u8->int)
 
 (def int->float
   (rust "{0} as f64" (fn (int) float)))
+
+(def float->u8
+  (rust "{0}.round() as u8" (fn (float) u8)))
 
 (defn u8->int (byte)
   (the int (convert byte)))

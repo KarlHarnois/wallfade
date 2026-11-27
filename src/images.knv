@@ -1,4 +1,7 @@
-(export ->image ->image-size image image-size)
+(export ->image ->image-size bytes-per-pixel image
+        image-size)
+
+(def bytes-per-pixel 3)
 
 (defstruct image
   :size image-size

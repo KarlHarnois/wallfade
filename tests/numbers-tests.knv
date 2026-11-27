@@ -1,4 +1,4 @@
-(use numbers abs-difference int->float u8->int)
+(use numbers abs-difference float->u8 int->float u8->int)
 
 (deftest an-int-becomes-the-same-float
   (assert (= (int->float 40) 40.0)))
@@ -8,3 +8,6 @@
 
 (deftest the-difference-ignores-which-number-is-larger
   (assert (= (abs-difference 3 10) (abs-difference 10 3) 7)))
+
+(deftest a-float-rounds-to-the-nearest-byte
+  (assert (= (float->u8 99.6) (the u8 100))))
