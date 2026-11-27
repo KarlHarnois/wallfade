@@ -1,29 +1,41 @@
 (use knave-commandant parse-args)
 (use cli matches->wallfade wallfade-spec)
-(use fade ->edge-fade ->fade ->percent faded-image)
-(use image-file error->message read-image write-image)
+(use fade ->fade edge-fade-of fade faded-image)
+
+(use image-file error->message image-error read-image
+                write-image)
+
 (use output-path output-path)
+
+(defstruct settings
+  :fade fade
+  :input string
+  :output string)
 
 (defn main ()
   (let (args (parse-args wallfade)
-        input (:input args)
-        output (output-path (as-str input)
-                            (clone (:output args))))
-    (match (fade-wallpaper (default-fade)
-                           (as-str input)
-                           (as-str output))
-      ((ok written) (println written))
+        settings (args->settings args))
+    (match (fade-wallpaper (ref settings))
+      ((ok _) (println (:output settings)))
       ((err failure) (eprintln (error->message failure)) (exit 1)))))
 
+(defn args->settings (args)
+  (let (input (as-str (:input args))
+        output (output-path input (clone (:output args))))
+    (->settings :fade (default-fade)
+                :input (str input)
+                :output output)))
+
 (defn default-fade ()
-  (->fade :top (edge-fade 40 30) :bottom (edge-fade 35 40)))
+  (->fade :top (edge-fade-of 40 30)
+          :bottom (edge-fade-of 35 40)))
 
-(defn edge-fade (darkening reach)
-  (->edge-fade :darkening (->percent :value darkening)
-               :reach (->percent :value reach)))
+(type fade-wallpaper
+  (fn ((ref settings))
+    (result unit image-error)))
 
-(defn fade-wallpaper (fade input output)
-  (let (image (try (read-image input))
-        faded (faded-image fade image))
-    (-> (write-image (ref faded) output)
-        (map-ok (fn (_) (str output))))))
+(defn fade-wallpaper (settings)
+  (let (image (try (read-image (as-str (:input settings))))
+        faded (faded-image (:fade settings) image))
+    (write-image (ref faded)
+                 (as-str (:output settings)))))

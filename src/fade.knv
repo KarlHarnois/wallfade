@@ -2,7 +2,8 @@
 (use numbers float->u8 int->float u8->int)
 
 (export ->edge-fade ->fade ->percent ->pixel-row edge-fade
-        fade faded-image percent pixel-row row-brightness)
+        edge-fade-of fade faded-image percent pixel-row
+        row-brightness)
 
 (defstruct fade
   :top edge-fade
@@ -20,12 +21,16 @@
 
 (defn faded-image (fade image)
   (let (row-length (-> image :size :width (* bytes-per-pixel))
-        brightness-by-row (brightness-by-row fade (:size image))
+        brightness-by-row (brightness-by-row (ref fade) (:size image))
         fade-byte (fn (indexed-byte)
                     (faded-byte (ref brightness-by-row)
                                 row-length indexed-byte))
         bytes (-> (:bytes image) enumerate (map fade-byte) collect))
     (assoc image :bytes bytes)))
+
+(defn edge-fade-of (darkening reach)
+  (->edge-fade :darkening (->percent :value darkening)
+               :reach (->percent :value reach)))
 
 (defn row-brightness (fade image-size pixel-row)
   (let (index (-> pixel-row :index int->float)

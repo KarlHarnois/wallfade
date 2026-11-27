@@ -1,5 +1,5 @@
 (use fade ->edge-fade ->fade ->percent ->pixel-row
-          faded-image row-brightness)
+          edge-fade-of faded-image row-brightness)
 
 (use images ->image ->image-size bytes-per-pixel)
 
@@ -14,7 +14,8 @@
                   eleven-row-image pixel-row))
 
 (defn top-faded-image (width height)
-  (faded-image (->fade :top (edge 50 50) :bottom (edge 0 0))
+  (faded-image (->fade :top (edge-fade-of 50 50)
+                       :bottom (edge-fade-of 0 0))
                (gray-image width height)))
 
 (defn gray-image (width height)
@@ -25,40 +26,36 @@
     (->image :size (->image-size :width width :height height)
              :bytes bytes)))
 
-(defn edge (darkening reach)
-  (->edge-fade :darkening (->percent :value darkening)
-               :reach (->percent :value reach)))
-
 (defn about? (actual expected)
   (< (- expected tolerance) actual (+ expected tolerance)))
 
 (deftest the-top-row-is-darkened-by-the-top-darkening
-  (assert (about? (brightness (edge 40 30)
-                              (edge 0 0)
+  (assert (about? (brightness (edge-fade-of 40 30)
+                              (edge-fade-of 0 0)
                               (->pixel-row :index 0))
                   0.6)))
 
 (deftest a-row-halfway-into-the-top-reach-gets-half-the-darkening
-  (assert (about? (brightness (edge 40 40)
-                              (edge 0 0)
+  (assert (about? (brightness (edge-fade-of 40 40)
+                              (edge-fade-of 0 0)
                               (->pixel-row :index 2))
                   0.8)))
 
 (deftest a-row-past-the-top-reach-keeps-its-brightness
-  (assert (about? (brightness (edge 40 30)
-                              (edge 0 0)
+  (assert (about? (brightness (edge-fade-of 40 30)
+                              (edge-fade-of 0 0)
                               (->pixel-row :index 5))
                   1.0)))
 
 (deftest the-last-row-is-darkened-by-the-bottom-darkening
-  (assert (about? (brightness (edge 0 0)
-                              (edge 50 50)
+  (assert (about? (brightness (edge-fade-of 0 0)
+                              (edge-fade-of 50 50)
                               (->pixel-row :index 10))
                   0.5)))
 
 (deftest a-zero-reach-leaves-the-edge-untouched
-  (assert (about? (brightness (edge 40 0)
-                              (edge 0 0)
+  (assert (about? (brightness (edge-fade-of 40 0)
+                              (edge-fade-of 0 0)
                               (->pixel-row :index 0))
                   1.0)))
 
@@ -74,3 +71,8 @@
 (deftest fading-keeps-the-image-size
   (assert (= (:size (top-faded-image 2 11))
              (->image-size :width 2 :height 11))))
+
+(deftest an-edge-fade-holds-its-two-percentages
+  (assert (= (edge-fade-of 40 30)
+             (->edge-fade :darkening (->percent :value 40)
+                          :reach (->percent :value 30)))))
