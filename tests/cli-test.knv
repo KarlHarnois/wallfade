@@ -2,18 +2,17 @@
 (use cli matches->wallfade wallfade-spec)
 
 (defn output (words)
-  (-> words wallfade-cli
+  (-> words args-result
       (map-ok (fn (args) (clone (:output args))))))
 
 (defn input (words)
-  (-> words wallfade-cli
+  (-> words args-result
       (map-ok (fn (args) (clone (:input args))))))
 
-(defn wallfade-cli (words)
+(defn args-result (words)
   (let (string-words (-> words (map str) collect)
-        empty-env (->environment :variables (vec))
-        args-result (parse-args-from wallfade empty-env string-words))
-    args-result))
+        empty-env (->environment :variables (vec)))
+    (parse-args-from wallfade empty-env string-words)))
 
 (deftest the-input-is-the-first-argument
   (assert (= (input (vec "wall.jpg"))
