@@ -1,0 +1,15 @@
+(use paths file-extension file-stem sibling-path)
+
+(deftest the-stem-is-the-file-name-without-its-extension
+  (assert (= (file-stem "walls/matte.jpg") "matte")))
+
+(deftest the-extension-comes-after-the-last-dot
+  (assert (= (file-extension "walls/matte.v2.jpg")
+             (some (str "jpg")))))
+
+(deftest a-file-without-a-dot-has-no-extension
+  (assert (= (file-extension "walls/matte") none)))
+
+(deftest a-sibling-path-replaces-the-file-name-in-the-same-folder
+  (assert (= (sibling-path "walls/matte.jpg" "other.png")
+             "walls/other.png")))

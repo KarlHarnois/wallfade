@@ -1,0 +1,13 @@
+(export file-extension file-stem sibling-path)
+
+(def file-stem
+  (rust "std::path::Path::new({0}).file_stem().map(|stem| stem.to_string_lossy().into_owned()).unwrap_or_default()"
+    (fn ((ref str)) string)))
+
+(def file-extension
+  (rust "std::path::Path::new({0}).extension().map(|extension| extension.to_string_lossy().into_owned())"
+    (fn ((ref str)) (option string))))
+
+(def sibling-path
+  (rust "std::path::Path::new({0}).with_file_name({1}).to_string_lossy().into_owned()"
+    (fn ((ref str) (ref str)) string)))

@@ -1,0 +1,23 @@
+(use paths file-extension file-stem sibling-path)
+
+(export output-path)
+
+(def default-suffix "-faded")
+
+(defn output-path (input output)
+  (match output
+    ((some path) path)
+    (none (faded-path input))))
+
+(defn faded-path (input)
+  (->> (faded-file-name input) as-str (sibling-path input)))
+
+(defn faded-file-name (input)
+  (let (stem (file-stem input)
+        extension (extension-suffix input))
+    (str stem default-suffix extension)))
+
+(defn extension-suffix (input)
+  (match (file-extension input)
+    ((some extension) (str "." extension))
+    (none (str))))

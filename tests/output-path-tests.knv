@@ -1,0 +1,15 @@
+(use output-path output-path)
+
+(deftest a-given-output-is-kept
+  (assert (= (output-path "wall.jpg" (some (str "out.png")))
+             "out.png")))
+
+(deftest the-default-output-adds-faded-before-the-extension
+  (assert (= (output-path "wall.jpg" none) "wall-faded.jpg")))
+
+(deftest the-default-output-stays-in-the-input-folder
+  (assert (= (output-path "walls/matte.jpg" none)
+             "walls/matte-faded.jpg")))
+
+(deftest the-default-output-of-a-file-without-extension-ends-with-faded
+  (assert (= (output-path "walls/matte" none) "walls/matte-faded")))
