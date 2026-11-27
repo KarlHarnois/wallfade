@@ -23,7 +23,7 @@
                :reach (->percent :value reach)))
 
 (defn fade-wallpaper (fade input output)
-  (let-try (image (read-image input))
-    (let (faded (faded-image fade image))
-      (-> (write-image (ref faded) output)
-          (map-ok (fn (_) (str output)))))))
+  (let (image (try (read-image input))
+        faded (faded-image fade image))
+    (-> (write-image (ref faded) output)
+        (map-ok (fn (_) (str output))))))
