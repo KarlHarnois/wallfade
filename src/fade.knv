@@ -20,9 +20,10 @@
 
 (defn faded-image (fade image)
   (let (row-length (-> image :size :width (* bytes-per-pixel))
-        brightnesses (row-brightnesses fade (:size image))
+        brightness-by-row (brightness-by-row fade (:size image))
         fade-byte (fn (indexed-byte)
-                    (faded-byte (ref brightnesses) row-length indexed-byte))
+                    (faded-byte (ref brightness-by-row)
+                                row-length indexed-byte))
         bytes (-> (:bytes image) enumerate (map fade-byte) collect))
     (assoc image :bytes bytes)))
 
@@ -34,16 +35,16 @@
     (* (edge-brightness (:top fade) distance-from-top)
        (edge-brightness (:bottom fade) distance-from-bottom))))
 
-(defn row-brightnesses (fade size)
+(defn brightness-by-row (fade size)
   (-> (range 0 (:height size))
       (map (fn (index)
              (row-brightness fade size (->pixel-row :index index))))
       collect))
 
-(defn faded-byte (brightnesses row-length indexed-byte)
+(defn faded-byte (brightness-by-row row-length indexed-byte)
   (let-match ((pair index byte) indexed-byte)
     (let (row-index (/ index row-length)
-          brightness (-> brightnesses (at row-index) deref)
+          brightness (-> brightness-by-row (at row-index) deref)
           value (-> byte deref u8->int int->float))
       (float->u8 (* value brightness)))))
 
