@@ -1,0 +1,9 @@
+(export ->image ->image-size image image-size)
+
+(defstruct image
+  :size image-size
+  :bytes (vec u8))
+
+(defstruct image-size
+  :width int
+  :height int)

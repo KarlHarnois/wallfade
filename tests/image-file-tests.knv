@@ -1,0 +1,76 @@
+(use image-file ->file-failure error->message image-error
+                read-image write-image)
+
+(use images ->image ->image-size)
+(use numbers abs-difference u8->int)
+
+(def two-pixels "tests/fixtures/two-pixels.png")
+
+(def round-trip-path "target/two-pixels-round-trip.png")
+
+(def varied-jpeg-path "target/varied.jpg")
+
+(def jpeg-error-at-full-quality 8)
+
+(defn size-of (path)
+  (map-ok (read-image path)
+    (fn (image) (clone (:size image)))))
+
+(defn bytes-of (path)
+  (map-ok (read-image path)
+    (fn (image) (clone (:bytes image)))))
+
+(defn unreadable? (path)
+  (match (read-image path)
+    ((err (unreadable _)) true)
+    (_ false)))
+
+(defn varied-image ()
+  (->image :size (->image-size :width 8 :height 8)
+           :bytes (-> (range 0 192) (map varied-byte) collect)))
+
+(defn varied-byte (index)
+  (the u8
+       (convert (rem (* index 37) 256))))
+
+(defn largest-byte-error (expected actual)
+  (-> (zip (iter expected) (iter actual))
+      (map byte-error)
+      max))
+
+(defn byte-error (bytes)
+  (let-match ((pair expected actual) bytes)
+    (abs-difference (u8->int (deref expected))
+                    (u8->int (deref actual)))))
+
+(deftest reading-gives-the-image-size
+  (assert (= (size-of two-pixels)
+             (ok (->image-size :width 1 :height 2)))))
+
+(deftest reading-gives-the-rgb-bytes-row-by-row
+  (assert (= (bytes-of two-pixels)
+             (ok (vec 200 100 50 10 20 30)))))
+
+(deftest a-missing-file-is-unreadable
+  (assert (unreadable? "tests/fixtures/missing.png")))
+
+(deftest a-written-image-reads-back-the-same
+  (let (image (->image :size (->image-size :width 1 :height 2)
+                       :bytes (vec 1 2 3 4 5 6)))
+    (assert (ok? (write-image (ref image) round-trip-path)))
+    (assert (= (bytes-of round-trip-path)
+               (ok (vec 1 2 3 4 5 6))))))
+
+(deftest an-unreadable-file-names-its-path-and-reason
+  (assert (= (error->message (image-error/unreadable (->file-failure :path (str "wall.jpg")
+                                                                     :reason (str
+                                                                               "no such file"))))
+             "cannot read wall.jpg: no such file")))
+
+(deftest a-jpeg-is-written-at-full-quality
+  (let (image (varied-image)
+        written (write-image (ref image) varied-jpeg-path)
+        read-back (unwrap-ok (bytes-of varied-jpeg-path))
+        largest-error (unwrap (largest-byte-error (:bytes image) read-back)))
+    (assert (ok? written))
+    (assert (<= largest-error jpeg-error-at-full-quality))))

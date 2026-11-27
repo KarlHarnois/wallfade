@@ -1,8 +1,7 @@
 (use numbers int->float)
 
-(export ->edge-fade ->fade ->image-size ->percent
-        ->pixel-row edge-fade fade image-size percent
-        pixel-row row-brightness)
+(export ->edge-fade ->fade ->percent ->pixel-row edge-fade
+        fade percent pixel-row row-brightness)
 
 (defstruct fade
   :top edge-fade
@@ -14,9 +13,6 @@
 
 (defstruct percent
   :value int)
-
-(defstruct image-size
-  :height int)
 
 (defstruct pixel-row
   :index int)

@@ -1,9 +1,11 @@
-(use fade ->edge-fade ->fade ->image-size ->percent
-          ->pixel-row row-brightness)
+(use fade ->edge-fade ->fade ->percent ->pixel-row
+          row-brightness)
+
+(use images ->image-size)
 
 (def tolerance 0.000001)
 
-(def eleven-row-image (->image-size :height 11))
+(def eleven-row-image (->image-size :width 1 :height 11))
 
 (defn brightness (top bottom pixel-row)
   (row-brightness (->fade :top top :bottom bottom)

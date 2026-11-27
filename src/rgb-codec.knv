@@ -1,0 +1,31 @@
+(export decode-rgb encode-jpeg encode-rgb rgb-bytes
+        rgb-height rgb-image rgb-width)
+
+(def decode-rgb
+  (rust "::image::open({0}).map(|image| image.to_rgb8()).map_err(|error| error.to_string())"
+    (fn ((ref str))
+      (result rgb-image string))))
+
+(def rgb-width
+  (rust "{0}.width() as i64"
+    (fn ((ref rgb-image)) int)))
+
+(def rgb-height
+  (rust "{0}.height() as i64"
+    (fn ((ref rgb-image)) int)))
+
+(def rgb-bytes
+  (rust "{0}.into_raw()"
+    (fn (rgb-image) (vec u8))))
+
+(def encode-jpeg
+  (rust "std::fs::File::create({3}).map_err(|error| error.to_string()).and_then(|file| ::image::codecs::jpeg::JpegEncoder::new_with_quality(std::io::BufWriter::new(file), {4}).encode({0}, {1} as u32, {2} as u32, ::image::ExtendedColorType::Rgb8).map_err(|error| error.to_string()))"
+    (fn ((ref (vec u8)) int int (ref str) u8)
+      (result unit string))))
+
+(def encode-rgb
+  (rust "::image::save_buffer({3}, {0}, {1} as u32, {2} as u32, ::image::ExtendedColorType::Rgb8).map_err(|error| error.to_string())"
+    (fn ((ref (vec u8)) int int (ref str))
+      (result unit string))))
+
+(rust-type rgb-image "::image::RgbImage")

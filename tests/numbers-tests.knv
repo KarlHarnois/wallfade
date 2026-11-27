@@ -1,4 +1,10 @@
-(use numbers int->float)
+(use numbers abs-difference int->float u8->int)
 
 (deftest an-int-becomes-the-same-float
   (assert (= (int->float 40) 40.0)))
+
+(deftest a-byte-becomes-the-same-int
+  (assert (= (u8->int (the u8 200)) 200)))
+
+(deftest the-difference-ignores-which-number-is-larger
+  (assert (= (abs-difference 3 10) (abs-difference 10 3) 7)))

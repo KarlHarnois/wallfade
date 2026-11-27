@@ -1,4 +1,10 @@
-(export int->float)
+(export abs-difference int->float u8->int)
 
 (def int->float
   (rust "{0} as f64" (fn (int) float)))
+
+(defn u8->int (byte)
+  (the int (convert byte)))
+
+(defn abs-difference (left right)
+  (max (- left right) (- right left)))

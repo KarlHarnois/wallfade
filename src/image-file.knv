@@ -1,0 +1,61 @@
+(use images ->image ->image-size)
+(use paths file-extension)
+
+(use rgb-codec decode-rgb encode-jpeg encode-rgb rgb-bytes
+               rgb-height rgb-width)
+
+(export ->file-failure error->message file-failure
+        image-error read-image write-image)
+
+(def max-jpeg-quality 100)
+
+(def jpeg-extensions (vec "jpg" "jpeg"))
+
+(defenum image-error
+  (unreadable file-failure)
+  (unwritable file-failure))
+
+(defstruct file-failure
+  :path string
+  :reason string)
+
+(defn read-image (path)
+  (-> (decode-rgb path)
+      (map-ok rgb-image->image)
+      (map-err (fn (reason)
+                 (image-error/unreadable (file-failure-at path reason))))))
+
+(defn write-image (image path)
+  (-> (encode image path)
+      (map-err (fn (reason)
+                 (image-error/unwritable (file-failure-at path reason))))))
+
+(defn error->message (failure)
+  (match failure
+    ((unreadable cause)
+     (str "cannot read " (:path cause) ": " (:reason cause)))
+    ((unwritable cause)
+     (str "cannot write " (:path cause) ": " (:reason cause)))))
+
+(defn rgb-image->image (rgb-image)
+  (let (size (->image-size :width (rgb-width (ref rgb-image))
+                           :height (rgb-height (ref rgb-image))))
+    (->image :size size :bytes (rgb-bytes rgb-image))))
+
+(defn file-failure-at (path reason)
+  (->file-failure :path (str path) :reason reason))
+
+(defn encode (image path)
+  (let (bytes (:bytes image)
+        width (-> image :size :width)
+        height (-> image :size :height))
+    (if (jpeg-path? path)
+      (encode-jpeg bytes width height path max-jpeg-quality)
+      (encode-rgb bytes width height path))))
+
+(defn jpeg-path? (path)
+  (match (file-extension path)
+    ((some extension)
+     (contains? jpeg-extensions
+                (-> extension as-str lower-case as-str)))
+    (none false)))

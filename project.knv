@@ -1,5 +1,6 @@
 (defproject wallfade
   :knave "0.22.0"
+  (dependencies (image "0.25.10"))
   (libraries
     (ledelint :git "https://github.com/KarlHarnois/ledelint"
               :rev "19bfd0d1d8f73dd728dc15bbe29921402c20f455")
