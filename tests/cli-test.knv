@@ -1,22 +1,19 @@
 (use knave-commandant ->environment parse-args-from)
 (use cli matches->wallfade wallfade-spec)
 
-(defn output (texts)
-  (-> texts wallfade-cli
-      (map-ok (fn (cmd) (clone (:output cmd))))))
+(defn output (words)
+  (-> words wallfade-cli
+      (map-ok (fn (args) (clone (:output args))))))
 
-(defn input (texts)
-  (-> texts wallfade-cli
-      (map-ok (fn (cmd) (clone (:input cmd))))))
+(defn input (words)
+  (-> words wallfade-cli
+      (map-ok (fn (args) (clone (:input args))))))
 
-(defn wallfade-cli (texts)
-  (parse-args-from wallfade (empty-env) (words texts)))
-
-(defn empty-env ()
-  (->environment :variables (vec)))
-
-(defn words (texts)
-  (-> texts (map str) collect))
+(defn wallfade-cli (words)
+  (let (string-words (-> words (map str) collect)
+        empty-env (->environment :variables (vec))
+        args-result (parse-args-from wallfade empty-env string-words))
+    args-result))
 
 (deftest the-input-is-the-first-argument
   (assert (= (input (vec "wall.jpg"))
