@@ -1,0 +1,48 @@
+(export ->edge-fade ->fade ->image-size ->percent
+        ->pixel-row edge-fade fade image-size percent
+        pixel-row row-brightness)
+
+(def percent-of-whole 100.0)
+
+(def int->float
+  (rust "{0} as f64" (fn (int) float)))
+
+(defstruct fade
+  :top edge-fade
+  :bottom edge-fade)
+
+(defstruct edge-fade
+  :darkening percent
+  :reach percent)
+
+(defstruct percent
+  :value int)
+
+(defstruct image-size
+  :height int)
+
+(defstruct pixel-row
+  :index int)
+
+(defn row-brightness (fade image-size pixel-row)
+  (let (index (-> pixel-row :index int->float)
+        last-index (-> image-size :height dec (max 1) int->float)
+        distance-from-top (/ index last-index)
+        distance-from-bottom (- 1.0 distance-from-top))
+    (* (edge-brightness (:top fade) distance-from-top)
+       (edge-brightness (:bottom fade) distance-from-bottom))))
+
+(defn edge-brightness (edge-fade distance-from-edge)
+  (let (darkening (-> edge-fade :darkening fraction)
+        reach (-> edge-fade :reach fraction))
+    (->> (share-of-darkening distance-from-edge reach)
+         (* darkening)
+         (- 1.0))))
+
+(defn share-of-darkening (distance-from-edge reach)
+  (if (>= distance-from-edge reach)
+    0.0
+    (- 1.0 (/ distance-from-edge reach))))
+
+(defn fraction (percent)
+  (-> percent :value int->float (/ percent-of-whole)))
