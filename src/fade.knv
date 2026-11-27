@@ -1,9 +1,8 @@
+(use numbers int->float)
+
 (export ->edge-fade ->fade ->image-size ->percent
         ->pixel-row edge-fade fade image-size percent
         pixel-row row-brightness)
-
-(def int->float
-  (rust "{0} as f64" (fn (int) float)))
 
 (defstruct fade
   :top edge-fade

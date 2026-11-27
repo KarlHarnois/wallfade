@@ -1,0 +1,4 @@
+(use numbers int->float)
+
+(deftest an-int-becomes-the-same-float
+  (assert (= (int->float 40) 40.0)))

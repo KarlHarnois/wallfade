@@ -1,0 +1,4 @@
+(export int->float)
+
+(def int->float
+  (rust "{0} as f64" (fn (int) float)))
