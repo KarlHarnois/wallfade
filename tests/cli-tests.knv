@@ -3,11 +3,11 @@
 
 (defn output (words)
   (-> words args-result
-      (map-ok (fn (args) (clone (:output args))))))
+      (map-ok (fn (args) (-> args :output clone)))))
 
 (defn input (words)
   (-> words args-result
-      (map-ok (fn (args) (clone (:input args))))))
+      (map-ok (fn (args) (-> args :input clone)))))
 
 (defn args-result (words)
   (let (string-words (-> words (map str) collect)
