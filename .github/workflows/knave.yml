@@ -14,6 +14,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-knave
+      - name: Fetch the libraries
+        run: knave check
       - name: Check the layout
         run: knave fmt --check
       - name: Lint
